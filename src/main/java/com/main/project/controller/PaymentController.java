@@ -26,8 +26,7 @@ import lombok.AllArgsConstructor;
 public class PaymentController {
 	@Autowired
 	private final PaymentRepository repository;
-	private final PaymentFilterRepository filterrepository;
-	//private final PaymentCustomRepository crepository;
+	private final PaymentFilterRepository filter_repository;
 
 	@GetMapping("/payment")
 	public List<Payment> getAllPayment(){
@@ -52,25 +51,25 @@ public class PaymentController {
 	}
 
 	@GetMapping("/filter")
-	public List<Payment> filter(@RequestParam(value = "cod_debito", required = false) Integer cod_debito
-			, @RequestParam(value = "cpf", required = false) String cpf
+	public List<Payment> filter(@RequestParam(value = "cod_debit", required = false) Integer cod_debit
+			, @RequestParam(value = "identification", required = false) String identification
 			, @RequestParam(value = "status", required = false) String status){
-		return filterrepository.filter(cod_debito, cpf, status).stream()
+		return filter_repository.filter(cod_debit, identification, status).stream()
 				.map(Payment::converter)
 				.collect(Collectors.toList());
 	}
 
 	@DeleteMapping("/deletePayment")
 	public String deletePayment(@RequestParam(value = "cod_debit", required = false) Integer cod_debit){
-		Integer response = filterrepository.deletePayment(cod_debit);
-		System.out.println(response);
+		Integer response = filter_repository.deletePayment(cod_debit);
+
 		if(response > 0) {
-			 repository.deleteById((long)response);
-			return "Registro excluído com sucesso!";
+			repository.deleteById((long)response);
+			return "Pagamento excluído com sucesso!";
 		}else if(response == 0){
-			return "O registro não pôde ser excluído, pois foi finalizado com sucesso.";
+			return "O pagamento não pode ser excluído porque já foi processado com sucesso.";
 		}else {
-			return "O registro não existe.";
+			return "O pagamento não existe.";
 		}
 	}
 }

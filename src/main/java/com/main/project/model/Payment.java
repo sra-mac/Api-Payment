@@ -24,69 +24,31 @@ public class Payment {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	Long id;
 	@NotNull
-	Integer cod_debito;
+	Integer cod_debit;
 	@NotBlank
 	@CPF
-	String tp_pessoa;
+	String identification;
+	@NotBlank
+	String tp_person;
 	@NotNull
-	String metodoPagamento;
-	Integer numCartao;
+	String payment_method;
+	Integer card_number;
 	@NotNull
 	@Min(value = 0)
-	Float valor;
+	Float payment_value;
 	@NotEmpty
 	String status;
 
 	public static Payment converter (Payment p) {
 		var pay = new Payment();
 		pay.setId(p.getId());
-		pay.setCod_debito(p.getCod_debito());
-		pay.setMetodoPagamento(p.getMetodoPagamento());
-		pay.setNumCartao(p.getNumCartao());
+		pay.setCod_debit(p.getCod_debit());
+		pay.setPayment_method(p.getPayment_method());
+		pay.setCard_number(p.getCard_number());
 		pay.setStatus(p.getStatus());
-		pay.setTp_pessoa(p.getTp_pessoa());
-		pay.setValor(p.getValor());
+		pay.setIdentification(p.getIdentification());
+		pay.setTp_person(p.getTp_person());
+		pay.setPayment_value(p.getPayment_value());
 		return pay;
 	}
-
-	public Integer getCod_debito() {
-		return cod_debito;
-	}
-	public void setCod_debito(Integer cod_debito) {
-		this.cod_debito = cod_debito;
-	}
-	public String getTp_pessoa() {
-		return tp_pessoa;
-	}
-	public void setTp_pessoa(String tp_pessoa) {
-		this.tp_pessoa = tp_pessoa;
-	}
-	public String getMetodoPagamento() {
-		return metodoPagamento;
-	}
-	public void setMetodoPagamento(String metodoPagamento) {
-		this.metodoPagamento = metodoPagamento;
-	}
-	public Integer getNumCartao() {
-		return numCartao;
-	}
-	public void setNumCartao(Integer numCartao) {
-		this.numCartao = numCartao;
-	}
-	public Float getValor() {
-		return valor;
-	}
-	public void setValor(Float valor) {
-		this.valor = valor;
-	}
-	public String getStatus() {
-		return status;
-	}
-	public void setStatus(String status) {
-		this.status = status;
-	}
-	public Long getId() {
-		return id;
-	}
-
 }

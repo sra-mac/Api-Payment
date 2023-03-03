@@ -17,12 +17,12 @@ public class PaymentFilterRepository {
 	}
 
 	public Integer deletePayment(Integer cod_debit) {
-		String sql = "SELECT P FROM Payment AS P Where cod_debito = :cod_debito ";
+		String sql = "SELECT P FROM Payment AS P Where cod_debit = :cod_debit ";
 		
 		try {
 			var query = em.createQuery(sql, Payment.class);
 			if (cod_debit != null) {
-				query.setParameter("cod_debito", cod_debit);
+				query.setParameter("cod_debit", cod_debit);
 			}
 			System.out.println(query.getResultList().get(0).getId());
 
@@ -35,23 +35,22 @@ public class PaymentFilterRepository {
 			}
 
 		}catch (IndexOutOfBoundsException ex) {
-		    // expected
-			System.out.println("BBB: "+ ex);
+		    // Caso não houver o código de débito no banco.
 			return -1;
-		  }
+		 }
 	}
 
-	public List<Payment> filter(Integer cod_debito, String cpf, String status) {
+	public List<Payment> filter(Integer cod_debit, String identification, String status) {
 		String sql = "SELECT P FROM Payment AS P";
 		String conditional = " Where ";
 
-		if (cod_debito != null) {
-			sql += conditional + "P.cod_debito = :cod_debito";
+		if (cod_debit != null) {
+			sql += conditional + "P.cod_debit = :cod_debit";
 			conditional = " and ";
 		}
 
-		if (cpf != null) {
-			sql += conditional + "P.tp_pessoa like :cpf";
+		if (identification != null) {
+			sql += conditional + "P.identification like :cpf";
 			// conditional = "and";
 		}
 
@@ -60,22 +59,21 @@ public class PaymentFilterRepository {
 			// conditional = "and";
 		}
 
-		var q = em.createQuery(sql, Payment.class);
-		if (cod_debito != null) {
-			q.setParameter("cod_debito", cod_debito);
+		var query = em.createQuery(sql, Payment.class);
+		if (cod_debit != null) {
+			query.setParameter("cod_debit", cod_debit);
 		}
 
-		if (cpf != null) {
-			q.setParameter("cpf", cpf);
+		if (identification != null) {
+			query.setParameter("identification", identification);
 			// conditional = "and";
 		}
 
 		if (status != null) {
-			q.setParameter("status", status);
+			query.setParameter("status", status);
 			// conditional = "and";
 		}
-		return q.getResultList();
-
+		return query.getResultList();
 	}
 
 }
