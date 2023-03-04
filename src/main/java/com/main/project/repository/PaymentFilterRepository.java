@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 
 import com.main.project.model.Payment;
+import com.main.project.model.PaymentStatus;
 
 import jakarta.persistence.EntityManager;
 
@@ -16,6 +17,31 @@ public class PaymentFilterRepository {
 		this.em = em;
 	}
 
+	public String processPayment(Payment payment) {
+		payment.setStatus(PaymentStatus.PENDENTE);
+
+		String payment_method_result = payment.getPayment_method();
+		Number card_number_result = payment.getCard_number();
+
+
+		if((payment_method_result.equals("cartao_credito")) || (payment_method_result.equals("cartao_debito"))) {
+			if(card_number_result == null) {
+				return null;
+			}else {
+				return "Success";
+			}
+		}else {		
+			return "Success";
+		}
+	}
+	
+	public Payment savePayment(Payment payment) {
+		payment.setStatus(PaymentStatus.PENDENTE);
+	
+		return payment;
+	}
+
+
 	public Integer deletePayment(Integer cod_debit) {
 		String sql = "SELECT P FROM Payment AS P Where cod_debit = :cod_debit ";
 		
@@ -24,10 +50,10 @@ public class PaymentFilterRepository {
 			if (cod_debit != null) {
 				query.setParameter("cod_debit", cod_debit);
 			}
-			System.out.println(query.getResultList().get(0).getId());
 
-			String status_result = query.getResultList().get(0).getStatus();
-			if(status_result.equals("PENDENTE")) {
+			PaymentStatus status_result = query.getResultList().get(0).getStatus();
+
+			if(String.valueOf(status_result).equals("PENDENTE")) {
 				Long id_result = query.getResultList().get(0).getId();
 				return id_result.intValue();
 			}else {
@@ -40,7 +66,7 @@ public class PaymentFilterRepository {
 		 }
 	}
 
-	public List<Payment> filter(Integer cod_debit, String identification, String status) {
+	public List<Payment> filter(Integer cod_debit, String payer, String status) {
 		String sql = "SELECT P FROM Payment AS P";
 		String conditional = " Where ";
 
@@ -49,8 +75,8 @@ public class PaymentFilterRepository {
 			conditional = " and ";
 		}
 
-		if (identification != null) {
-			sql += conditional + "P.identification like :cpf";
+		if (payer != null) {
+			sql += conditional + "P.payer like :cpf";
 			// conditional = "and";
 		}
 
@@ -64,8 +90,8 @@ public class PaymentFilterRepository {
 			query.setParameter("cod_debit", cod_debit);
 		}
 
-		if (identification != null) {
-			query.setParameter("identification", identification);
+		if (payer != null) {
+			query.setParameter("payer", payer);
 			// conditional = "and";
 		}
 

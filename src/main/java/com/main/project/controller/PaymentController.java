@@ -1,20 +1,26 @@
 package com.main.project.controller;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.main.project.model.Payment;
+import com.main.project.model.PaymentStatus;
+import com.main.project.model.PaymentStatusRequest;
 import com.main.project.repository.PaymentFilterRepository;
 import com.main.project.repository.PaymentRepository;
 
@@ -40,7 +46,15 @@ public class PaymentController {
 
 	@PostMapping("/payment")
 	public Payment savePayment(@RequestBody @Valid Payment payment){
-		return repository.save(payment);
+		
+		var response = filter_repository.processPayment(payment);
+		
+		if(response.equals("Success")) {
+			var save_data = filter_repository.savePayment(payment);
+			return repository.save(save_data);
+		}else {
+			return null;
+		}
 	}
 
 	@PutMapping("/payment/{id}")
@@ -52,9 +66,9 @@ public class PaymentController {
 
 	@GetMapping("/filter")
 	public List<Payment> filter(@RequestParam(value = "cod_debit", required = false) Integer cod_debit
-			, @RequestParam(value = "identification", required = false) String identification
+			, @RequestParam(value = "payer", required = false) String payer
 			, @RequestParam(value = "status", required = false) String status){
-		return filter_repository.filter(cod_debit, identification, status).stream()
+		return filter_repository.filter(cod_debit, payer, status).stream()
 				.map(Payment::converter)
 				.collect(Collectors.toList());
 	}
@@ -72,4 +86,54 @@ public class PaymentController {
 			return "O pagamento não existe.";
 		}
 	}
+	
+	
+	/*
+	 * Código para atualização do status de pagamento, 
+	 * por problemas de tipagem, não foi finalizado a tempo
+	@RequestMapping(value = "/payments/{id}", method = RequestMethod.PUT)
+	public ResponseEntity<Payment> updatePaymentStatus(@PathVariable("id") Long id, @RequestBody PaymentStatusRequest request) throws Exception {
+		Payment payment = repository.findById(id).get();
+
+	    if (payment == null) {
+	        return ResponseEntity.notFound().build();
+	    }
+
+	    PaymentStatus newStatus = request.getNewStatus();
+
+	    if (payment.getStatus() == PaymentStatus.SUCESSO) {
+	        // Um pagamento processado com sucesso não pode ter seu status alterado.
+	    	throw new Exception("Unchanged status");
+	  }
+
+	    if (newStatus == PaymentStatus.SUCESSO) {
+	        // Atualizando status para Processado com Sucesso.
+	        payment.setStatus(newStatus);
+	        repository.save(payment);
+	        return ResponseEntity.ok(payment);
+	    }
+
+	    if (newStatus == PaymentStatus.FALHA) {
+	        // Atualizando status para Processado com Falha.
+	        payment.setStatus(newStatus);
+	        repository.save(payment);
+	        return ResponseEntity.ok(payment);
+	    }
+
+	    if (newStatus == PaymentStatus.PENDENTE) {
+	        // Atualizando status para Pendente de Processamento.
+	        if (payment.getStatus() == PaymentStatus.FALHA) {
+	            payment.setStatus(newStatus);
+	            repository.save(payment);
+	            return ResponseEntity.ok(payment);
+	        } else {
+	            // Um pagamento que ainda não foi processado não pode voltar para o status Pendente de Processamento.
+	        	//return ResponseEntity.badRequest().body("Cannot update status to PENDING for a payment that is not in FAILURE status.");
+	        	throw new Exception("Cannot update status to PENDING for a payment that is not in FAILURE status.");
+	        }
+	    }
+
+	    //return ResponseEntity.badRequest().body("Invalid new status: " + newStatus);
+	   return updatePaymentStatus(id, request);
+	}*/
 }

@@ -9,5 +9,4 @@ import com.main.project.model.Payment;
 
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
-
 }

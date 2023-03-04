@@ -3,7 +3,11 @@ package com.main.project.model;
 
 import org.hibernate.validator.constraints.br.CPF;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -26,8 +30,8 @@ public class Payment {
 	@NotNull
 	Integer cod_debit;
 	@NotBlank
-	@CPF
-	String identification;
+	//@CPF
+	String payer;
 	@NotBlank
 	String tp_person;
 	@NotNull
@@ -36,19 +40,23 @@ public class Payment {
 	@NotNull
 	@Min(value = 0)
 	Float payment_value;
-	@NotEmpty
-	String status;
+	
+	@Enumerated(EnumType.STRING)
+    private PaymentStatus status;
 
+	
+
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	public static Payment converter (Payment p) {
 		var pay = new Payment();
 		pay.setId(p.getId());
 		pay.setCod_debit(p.getCod_debit());
 		pay.setPayment_method(p.getPayment_method());
 		pay.setCard_number(p.getCard_number());
-		pay.setStatus(p.getStatus());
-		pay.setIdentification(p.getIdentification());
+		pay.setPayer(p.getPayer());
 		pay.setTp_person(p.getTp_person());
 		pay.setPayment_value(p.getPayment_value());
 		return pay;
 	}
+	
 }
